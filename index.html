@@ -1,0 +1,20 @@
+<img hidden id="image" src="pastoral.png"/>
+<img hidden id="template" src="note - Copy.png"/>
+<canvas id="outputCanvas"></canvas>
+<script>
+    function start() {
+        cv['onRuntimeInitialized'] = () => {
+            let img_rgb = cv.imread('image');
+            let img_gray = new cv.Mat();
+            cv.cvtColor(img_rgb, img_gray, cv.COLOR_BGR2GRAY);
+
+            cv.imshow("outputCanvas", img_gray);
+
+        }
+        image.onload = () => {
+        }
+
+        
+    }
+</script>
+<script src="opencv.js" onload="start();"></script>
