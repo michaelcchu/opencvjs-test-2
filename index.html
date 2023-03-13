@@ -1,15 +1,55 @@
+<link href="styles.css" rel="stylesheet">
 <img hidden id="image" src="pastoral.png"/>
 <img hidden id="template" src="note - Copy.png"/>
-<canvas id="outputCanvas"></canvas>
+<div class="wrapper">
+    <canvas id="img_gray"></canvas>
+    <canvas id="notes"></canvas>
+    <canvas id="temp_gray"></canvas>
+    <canvas id="search"></canvas>
+    <canvas id="matches"></canvas>    
+</div>
 <script>
     function start() {
         cv['onRuntimeInitialized'] = () => {
-            let img_rgb = cv.imread('image');
-            let img_gray = new cv.Mat();
+            const img_rgb = cv.imread('image');
+            const img_gray = new cv.Mat();
             cv.cvtColor(img_rgb, img_gray, cv.COLOR_BGR2GRAY);
+            cv.imshow("img_gray", img_gray);
 
-            cv.imshow("outputCanvas", img_gray);
-        }        
+            const temp_rgb = cv.imread('template');
+            const temp_gray = new cv.Mat();
+            cv.cvtColor(temp_rgb, temp_gray, cv.COLOR_BGR2GRAY);
+            cv.imshow("temp_gray", temp_gray);
+
+            const search = new cv.Mat();
+            const mask = new cv.Mat();
+            cv.matchTemplate(img_gray, temp_gray, search, cv.TM_CCOEFF, mask)
+
+            console.log();
+            const extrema = cv.minMaxLoc(search);
+            const maxPoint = extrema.maxLoc;
+            const color = new cv.Scalar(255, 0, 0, 255);
+            const point = new cv.Point(maxPoint.x + temp_gray.cols, 
+                maxPoint.y + temp_gray.rows);
+            const notes = new cv.Mat(img_gray.rows, img_gray.cols, cv.CV_8UC4);
+            cv.rectangle(notes, maxPoint, point, color, 2, cv.LINE_8, 0);
+            cv.imshow('notes', notes);
+
+
+            //cv.imshow("search", search);
+
+            /*
+            console.log(search)
+
+            const matches = new cv.Mat();
+            cv.threshold(search, matches, 254, 255, cv.THRESH_BINARY)
+            cv.imshow("matches", matches);
+
+            
+            for (const pt of loc) {
+                cv.rectangle(img_rgb, pt, (pt[0] + w, pt[1] + h), (0,0,255), 2)
+            }*/
+        }
     }
 </script>
 <script src="opencv.js" onload="start();"></script>
