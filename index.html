@@ -31,7 +31,8 @@
             const color = new cv.Scalar(255, 0, 0, 255);
             const point = new cv.Point(maxPoint.x + temp_gray.cols, 
                 maxPoint.y + temp_gray.rows);
-            const notes = new cv.Mat(img_gray.rows, img_gray.cols, cv.CV_8UC4);
+            const notes = cv.Mat.zeros(img_gray.rows, img_gray.cols, 
+                cv.CV_8UC4);
             cv.rectangle(notes, maxPoint, point, color, 2, cv.LINE_8, 0);
             cv.imshow('notes', notes);
 
