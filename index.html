@@ -1,6 +1,11 @@
 <link href="styles.css" rel="stylesheet">
 <img hidden id="image" src="pastoral.png"/>
 <img hidden id="template" src="note - Copy.png"/>
+<form>
+    <input type="checkbox" name="c1" onclick="showMe('img_gray')" checked="">1
+    <input type="checkbox" name="c1" onclick="showMe('notes')" checked="">2
+    <input type="checkbox" name="c1" onclick="showMe('temp_gray')" checked="">3
+</form>
 <div class="wrapper">
     <canvas id="img_gray"></canvas>
     <canvas id="notes"></canvas>
@@ -9,6 +14,11 @@
     <canvas id="matches"></canvas>    
 </div>
 <script>
+    function showMe(id) {
+        const layer = document.getElementById(id);
+        layer.classList.toggle("hidden");
+    }
+
     function start() {
         cv['onRuntimeInitialized'] = () => {
             const img_rgb = cv.imread('image');
