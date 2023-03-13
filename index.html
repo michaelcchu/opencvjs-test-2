@@ -23,16 +23,56 @@
 
             const search = new cv.Mat();
             const mask = new cv.Mat();
-            cv.matchTemplate(img_gray, temp_gray, search, cv.TM_CCOEFF, mask)
+            cv.matchTemplate(img_gray, temp_gray, search, cv.TM_CCORR_NORMED, mask)
 
-            console.log();
-            const extrema = cv.minMaxLoc(search);
-            const maxPoint = extrema.maxLoc;
-            const color = new cv.Scalar(255, 0, 0, 255);
-            const point = new cv.Point(maxPoint.x + temp_gray.cols, 
-                maxPoint.y + temp_gray.rows);
+            let index = 0;
+            const values = [];
+            for (let i = 0; i < search.rows; i++) {
+                for (let j = 0; j < search.cols; j++) {
+                    let value = search.data32F[index];
+                    values.push(value);
+                    index++;
+                }
+            }
+
+            const matches = new cv.Mat();
+            cv.threshold(search, matches, 0.9, 1, cv.THRESH_BINARY)
+            //cv.imshow("matches", matches);
+
+            console.log(values);
+            
             const notes = cv.Mat.zeros(img_gray.rows, img_gray.cols, 
                 cv.CV_8UC4);
+
+            const color = new cv.Scalar(255, 0, 0, 255);
+
+            index = 0;
+            for (let i = 0; i < matches.rows; i++) {
+                for (let j = 0; j < matches.cols; j++) {
+                    let value = matches.data32F[index];
+                    if (value === 1) {
+
+                        const topLeft = new cv.Point(j,i);
+                        const bottomRight = new cv.Point(j + temp_gray.cols, 
+                            i + temp_gray.rows);
+
+                        cv.rectangle(notes, topLeft, bottomRight, color, 2, 
+                            cv.LINE_8, 0);
+                    }
+                    index++;
+                }
+            }   
+
+
+            const extrema = cv.minMaxLoc(search);
+            const maxPoint = extrema.maxLoc;
+
+
+            const point = new cv.Point(maxPoint.x + temp_gray.cols, 
+                maxPoint.y + temp_gray.rows);
+
+
+
             cv.rectangle(notes, maxPoint, point, color, 2, cv.LINE_8, 0);
             cv.imshow('notes', notes);
 
