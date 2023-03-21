@@ -1,15 +1,28 @@
 <link href="styles.css" rel="stylesheet">
 <img hidden id="image" src="pastoral.png"/>
-<img hidden id="template1" src="quarter_line.png"/>
-<img hidden id="template2" src="quarter_space.png"/>
-
+<img hidden id="template1" src="templates/quarter_line_stem_down.png"/>
+<img hidden id="template2" src="templates/quarter_space_stem_down.png"/>
+<img hidden id="template3" src="templates/quarter_line_stem_up.png"/>
+<img hidden id="template4" src="templates/quarter_space_stem_up.png"/>
+<img hidden id="template5" src="templates/eighth_line_stem_down.png"/>
+<img hidden id="template6" src="templates/half_space_stem_up.png"/>
+<img hidden id="template7" src="templates/half_line_stem_down.png"/>
+<img hidden id="template8" src="templates/half_space_stem_down.png"/>
 <form>
+    Toggle: 
     <input type="checkbox" name="c1" onclick="showMe('img_gray')" checked="">1
     <input type="checkbox" name="c1" onclick="showMe('notes')" checked="">2
 </form>
 <div>
+    Templates: 
     <canvas id="template1_canvas"></canvas>
-    <canvas id="template2_canvas"></canvas>    
+    <canvas id="template2_canvas"></canvas>
+    <canvas id="template3_canvas"></canvas>
+    <canvas id="template4_canvas"></canvas>
+    <canvas id="template5_canvas"></canvas>
+    <canvas id="template6_canvas"></canvas>
+    <canvas id="template7_canvas"></canvas>
+    <canvas id="template8_canvas"></canvas>
 </div>
 <div class="wrapper">
     <canvas id="img_gray"></canvas>
@@ -30,12 +43,13 @@
             cv.cvtColor(img_rgb, img_gray, cv.COLOR_BGR2GRAY);
             cv.imshow("img_gray", img_gray);
 
-            const templates = ['template1', 'template2'];
+            const number_of_templates = 8;
 
             const notes = cv.Mat.zeros(img_gray.rows, img_gray.cols, 
                 cv.CV_8UC4);
 
-            for (template of templates) {
+            for (let num = 1; num <= number_of_templates; num++) {
+                const template = "template" + num;
                 const temp_rgb = cv.imread(template);
                 const temp_gray = new cv.Mat();
                 cv.cvtColor(temp_rgb, temp_gray, cv.COLOR_BGR2GRAY);
