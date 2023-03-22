@@ -28,7 +28,7 @@
     <canvas id="img_gray"></canvas>
     <canvas id="notes"></canvas>
     <canvas id="search"></canvas>
-    <canvas id="matches"></canvas>    
+    <canvas id="canvasOutput"></canvas>    
 </div>
 <script>
     function showMe(id) {
@@ -69,34 +69,20 @@
 
                 const matches = new cv.Mat();
                 cv.threshold(search, matches, 0.8, 1, cv.THRESH_BINARY);
-                //cv.imshow("matches", matches);
                 
                 const color = new cv.Scalar(255, 0, 0, 255);
 
                 const notehead_centroid = notehead_centroids[num - 1];
 
                 let index = 0;
-                const points = [];
                 for (let i = 0; i < search.rows; i++) {
                     for (let j = 0; j < search.cols; j++) {
-                        let value = search.data32F[index];
+                        const value = search.data32F[index];
                         if (value >= 0.8) {
-                            const topLeft = new cv.Point(j,i);
-                            points.push(j,i);
-                            const bottomRight = new cv.Point(j + temp_gray.cols, 
-                                i + temp_gray.rows);
-
                             const centroid = new cv.Point(j + 
                                 notehead_centroid[0], i + notehead_centroid[1]);
-                            const centroid_bottom_right = new cv.Point(j + 
-                                notehead_centroid[0] + 5, i + 
-                                notehead_centroid[1] + 5);
-
-                            //cv.rectangle(notes, topLeft, bottomRight, color, 2, 
-                            //    cv.LINE_8, 0);
-
                             cv.rectangle(notes, centroid, centroid, 
-                                color, 2, cv.LINE_8, 0);
+                               color, 2, cv.LINE_8, 0);
                         }
                         index++;
                     }
@@ -104,6 +90,33 @@
             }
 
             cv.imshow('notes', notes);
+
+            // Find the contours of the notes.
+            // Use this to count the number of notes.
+
+            let src = notes;
+            let dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
+            cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
+            
+            cv.threshold(src, src, 1, 255, cv.THRESH_BINARY);
+            let contours = new cv.MatVector();
+            let hierarchy = new cv.Mat();
+            cv.findContours(src, contours, hierarchy, cv.RETR_CCOMP,
+                cv.CHAIN_APPROX_SIMPLE);
+
+            console.log(contours);
+            console.log(contours.size());
+            // draw contours with random Scalar
+            for (let i = 0; i < contours.size(); ++i) {
+                let color = new cv.Scalar(Math.round(Math.random() * 255), 
+                                        Math.round(Math.random() * 255),
+                                        Math.round(Math.random() * 255));
+                cv.drawContours(dst, contours, i, color, 1, cv.LINE_8, hierarchy, 100);
+            }
+            cv.imshow('canvasOutput', dst);
+            src.delete(); dst.delete(); contours.delete(); hierarchy.delete();
+        
+           //cv.imshow('canvasOutput', src);
         }
     }
 </script>
