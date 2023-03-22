@@ -45,6 +45,12 @@
 
             const number_of_templates = 8;
 
+            // data about the templates:
+            // notehead centroids:
+            // compute these by hand
+            const notehead_centroids = [[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],
+                [0,0],[0,0],[0,0]];
+
             const notes = cv.Mat.zeros(img_gray.rows, img_gray.cols, 
                 cv.CV_8UC4);
 
@@ -66,6 +72,8 @@
                 
                 const color = new cv.Scalar(255, 0, 0, 255);
 
+                const notehead_centroid = notehead_centroids[num];
+
                 let index = 0;
                 const points = [];
                 for (let i = 0; i < search.rows; i++) {
@@ -77,8 +85,17 @@
                             const bottomRight = new cv.Point(j + temp_gray.cols, 
                                 i + temp_gray.rows);
 
-                            cv.rectangle(notes, topLeft, bottomRight, color, 2, 
-                                cv.LINE_8, 0);
+                            const centroid = new cv.Point(j + 
+                                notehead_centroid[0], i + notehead_centroid[1]);
+                            const centroid_bottom_right = new cv.Point(j + 
+                                notehead_centroid[0] + 5, i + 
+                                notehead_centroid[1] + 5);
+
+                            //cv.rectangle(notes, topLeft, bottomRight, color, 2, 
+                            //    cv.LINE_8, 0);
+
+                            cv.rectangle(notes, centroid, centroid, 
+                                color, 2, cv.LINE_8, 0);
                         }
                         index++;
                     }
