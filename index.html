@@ -48,8 +48,9 @@
             // data about the templates:
             // notehead centroids:
             // compute these by hand
-            const notehead_centroids = [[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],
-                [0,0],[0,0],[0,0]];
+            // in the form of [x,y]
+            const notehead_centroids = [[8,7],[8,5],[8,27],[8,30],[9,8],[7,20],
+                [9,7],[9,5]];
 
             const notes = cv.Mat.zeros(img_gray.rows, img_gray.cols, 
                 cv.CV_8UC4);
@@ -72,7 +73,7 @@
                 
                 const color = new cv.Scalar(255, 0, 0, 255);
 
-                const notehead_centroid = notehead_centroids[num];
+                const notehead_centroid = notehead_centroids[num - 1];
 
                 let index = 0;
                 const points = [];
