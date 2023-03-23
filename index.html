@@ -125,7 +125,7 @@
                 const rect = cv.boundingRect(contour);
                 const cx = Math.round(rect.x + rect.width / 2);
                 const cy = Math.round(rect.y + rect.height / 2);
-                centroids.push([cx, cy]);
+                centroids.unshift([cx, cy]);
                 dst_centroids.ucharPtr(cy,cx)[0] = 255;
                 dst_centroids.ucharPtr(cy,cx)[3] = 255;
             }
