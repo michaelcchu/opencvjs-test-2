@@ -166,8 +166,8 @@
             document.addEventListener("keydown", () => {
                 cursor.clear();
                 index++;
-                cursor.x = centroids[index][0];
-                cursor.y = centroids[index][1];
+                cursor.x = centroids[index][0] - Math.floor(cursor.width / 2);
+                cursor.y = centroids[index][1] - Math.floor(cursor.height / 2);
                 cursor.update();
             });
         }
