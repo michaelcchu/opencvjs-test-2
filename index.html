@@ -12,6 +12,10 @@
     Toggle: 
     <input type="checkbox" name="c1" onclick="showMe('img_gray')" checked="">1
     <input type="checkbox" name="c1" onclick="showMe('notes')" checked="">2
+    <input type="checkbox" name="c1" onclick="showMe('search')" checked="">3
+    <input type="checkbox" name="c1" onclick="showMe('dst1')" checked="">4
+    <input type="checkbox" name="c1" onclick="showMe('dst2')" checked="">5
+
 </form>
 <div>
     Templates: 
@@ -28,7 +32,9 @@
     <canvas id="img_gray"></canvas>
     <canvas id="notes"></canvas>
     <canvas id="search"></canvas>
-    <canvas id="canvasOutput"></canvas>    
+    <canvas id="dst1"></canvas>
+    <canvas id="dst2"></canvas>    
+
 </div>
 <script>
     function showMe(id) {
@@ -79,10 +85,10 @@
                     for (let j = 0; j < search.cols; j++) {
                         const value = search.data32F[index];
                         if (value >= 0.8) {
-                            const centroid = new cv.Point(j + 
-                                notehead_centroid[0], i + notehead_centroid[1]);
-                            cv.rectangle(notes, centroid, centroid, 
-                               color, 2, cv.LINE_8, 0);
+                            const cx = j + notehead_centroid[0];
+                            const cy = i + notehead_centroid[1];
+                            notes.ucharPtr(cy,cx)[0] = 255;
+                            notes.ucharPtr(cy,cx)[3] = 255;
                         }
                         index++;
                     }
@@ -96,6 +102,7 @@
 
             let src = notes;
             let dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC4);
+            let dst_centroids = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC4);
             cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
             
             cv.threshold(src, src, 1, 255, cv.THRESH_BINARY);
@@ -106,14 +113,21 @@
 
             console.log(contours);
             console.log(contours.size());
+
             // draw contours
+            const color = new cv.Scalar(0, 0, 255, 255);
             for (let i = 0; i < contours.size(); ++i) {
-                let color = new cv.Scalar(0, 0, 255, 255);
-                cv.drawContours(dst, contours, i, color, 1, cv.LINE_8,
-                    hierarchy, 100);
+                const contour = contours.get(i);
+                const rect = cv.boundingRect(contour);
+                const cx = rect.x + rect.width / 2;
+                const cy = rect.y + rect.height / 2;
+                dst_centroids.ucharPtr(cy,cx)[0] = 255;
+                dst_centroids.ucharPtr(cy,cx)[3] = 255;
             }
-            cv.imshow('canvasOutput', dst);
-            src.delete(); dst.delete(); contours.delete(); hierarchy.delete();        
+            cv.imshow('dst1', dst);
+            cv.imshow('dst2', dst_centroids);
+
+            src.delete(); dst.delete(); contours.delete(); hierarchy.delete();
         }
     }
 </script>
