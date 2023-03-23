@@ -16,7 +16,8 @@
     note detection
     <input type="checkbox" name="c1" onclick="showMe('center_points')" checked="">
     point at the center of each note
-
+    <input type="checkbox" name="c1" onclick="showMe('cursor_layer')" checked="">
+    cursor layer
 </form>
 <div>
     Templates: 
@@ -33,7 +34,9 @@
     <canvas id="img_gray"></canvas>
     <canvas id="notes"></canvas>
     <canvas id="dst1"></canvas>
-    <canvas id="center_points"></canvas>    
+    <canvas id="center_points"></canvas>
+    <canvas id="cursor_layer"></canvas>    
+
 
 </div>
 <script>
@@ -116,17 +119,57 @@
 
             // draw contours
             const color = new cv.Scalar(0, 0, 255, 255);
+            const centroids = [];
             for (let i = 0; i < contours.size(); ++i) {
                 const contour = contours.get(i);
                 const rect = cv.boundingRect(contour);
-                const cx = rect.x + rect.width / 2;
-                const cy = rect.y + rect.height / 2;
+                const cx = Math.round(rect.x + rect.width / 2);
+                const cy = Math.round(rect.y + rect.height / 2);
+                centroids.push([cx, cy]);
                 dst_centroids.ucharPtr(cy,cx)[0] = 255;
                 dst_centroids.ucharPtr(cy,cx)[3] = 255;
             }
             cv.imshow('center_points', dst_centroids);
 
             src.delete(); dst.delete(); contours.delete(); hierarchy.delete();
+
+            function createCursor() {
+                const canvas = document.getElementById('cursor_layer');
+                canvas.width = document.getElementById('img_gray').width;
+                canvas.height = document.getElementById('img_gray').height;
+                const context = canvas.getContext('2d');
+                context.globalAlpha = 0.5;
+                
+                function component(x, y, width, height, color) {
+                    this.x = x;
+                    this.y = y;
+                    this.width = width;
+                    this.height = height;
+                    this.color = color;
+                    this.clear = function() {
+                        context.clearRect(this.x, this.y, this.width, this.height);
+                    };
+                    this.update = function() {
+                        context.fillStyle = this.color;
+                        context.fillRect(this.x, this.y, this.width, this.height);
+                    };
+                }
+                
+                const cursor = new component(0, 0, 10, 50, "red");
+                cursor.update();
+                return cursor;
+            }
+
+            const cursor = createCursor();
+
+            let index = -1;
+            document.addEventListener("keydown", () => {
+                cursor.clear();
+                index++;
+                cursor.x = centroids[index][0];
+                cursor.y = centroids[index][1];
+                cursor.update();
+            });
         }
     }
 </script>
