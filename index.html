@@ -8,6 +8,7 @@
 <img hidden id="template6" src="templates/half_space_stem_up.png"/>
 <img hidden id="template7" src="templates/half_line_stem_down.png"/>
 <img hidden id="template8" src="templates/half_space_stem_down.png"/>
+<img hidden id="template9" src="templates/left_edge_3.png"/>
 <form>
     Toggle: 
     <input type="checkbox" name="c1" onclick="showMe('img_gray')" checked="">
@@ -29,6 +30,7 @@
     <canvas id="template6_canvas"></canvas>
     <canvas id="template7_canvas"></canvas>
     <canvas id="template8_canvas"></canvas>
+    <canvas id="template9_canvas"></canvas>
 </div>
 <div class="wrapper">
     <canvas id="img_gray"></canvas>
@@ -52,14 +54,14 @@
             cv.cvtColor(img_rgb, img_gray, cv.COLOR_BGR2GRAY);
             cv.imshow("img_gray", img_gray);
 
-            const number_of_templates = 8;
+            const number_of_templates = 9;
 
             // data about the templates:
             // notehead centroids:
             // compute these by hand
             // in the form of [x,y]
             const notehead_centroids = [[8,7],[8,5],[8,27],[8,30],[9,8],[7,20],
-                [9,7],[9,5]];
+                [9,7],[9,5],[0,0]];
 
             const notes = cv.Mat.zeros(img_gray.rows, img_gray.cols, 
                 cv.CV_8UC4);
@@ -133,6 +135,9 @@
 
             src.delete(); dst.delete(); contours.delete(); hierarchy.delete();
 
+            // find clefs
+
+            // cursor
             function createCursor() {
                 const canvas = document.getElementById('cursor_layer');
                 canvas.width = document.getElementById('img_gray').width;
