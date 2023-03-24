@@ -15,6 +15,8 @@
     sheet music
     <input type="checkbox" name="c1" onclick="showMe('notes')" checked="">
     note detection
+    <input type="checkbox" name="c1" onclick="showMe('left_edges')" checked="">
+    left edges
     <input type="checkbox" name="c1" onclick="showMe('center_points')" checked="">
     point at the center of each note
     <input type="checkbox" name="c1" onclick="showMe('cursor_layer')" checked="">
@@ -35,11 +37,9 @@
 <div class="wrapper">
     <canvas id="img_gray"></canvas>
     <canvas id="notes"></canvas>
-    <canvas id="dst1"></canvas>
+    <canvas id="left_edges"></canvas>
     <canvas id="center_points"></canvas>
-    <canvas id="cursor_layer"></canvas>    
-
-
+    <canvas id="cursor_layer"></canvas>
 </div>
 <script>
     function showMe(id) {
@@ -61,11 +61,15 @@
             // compute these by hand
             // in the form of [x,y]
             const notehead_centroids = [[8,7],[8,5],[8,27],[8,30],[9,8],[7,20],
-                [9,7],[9,5],[0,0]];
+                [9,7],[9,5],[11,37]];
 
             const notes = cv.Mat.zeros(img_gray.rows, img_gray.cols, 
                 cv.CV_8UC4);
 
+            const clefs = cv.Mat.zeros(img_gray.rows, img_gray.cols, 
+                cv.CV_8UC4);
+
+            // loop through every template
             for (let num = 1; num <= number_of_templates; num++) {
                 const template = "template" + num;
                 const temp_rgb = cv.imread(template);
@@ -92,8 +96,12 @@
                         if (value >= 0.8) {
                             const cx = j + notehead_centroid[0];
                             const cy = i + notehead_centroid[1];
-                            notes.ucharPtr(cy,cx)[0] = 255;
-                            notes.ucharPtr(cy,cx)[3] = 255;
+                            let image_to_modify = notes;
+                            if (num === 9) {
+                                image_to_modify = clefs;
+                            }
+                            image_to_modify.ucharPtr(cy,cx)[0] = 255;
+                            image_to_modify.ucharPtr(cy,cx)[3] = 255;
                         }
                         index++;
                     }
@@ -101,6 +109,8 @@
             }
 
             cv.imshow('notes', notes);
+            cv.imshow('left_edges', clefs);
+
 
             // Find the contours of the notes.
             // Use this to count the number of notes.
