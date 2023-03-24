@@ -12,15 +12,19 @@
 <form>
     Toggle: 
     <input type="checkbox" name="c1" onclick="showMe('img_gray')" checked="">
-    sheet music
+        sheet music
     <input type="checkbox" name="c1" onclick="showMe('notes')" checked="">
-    note detection
+        note detection
     <input type="checkbox" name="c1" onclick="showMe('left_edges')" checked="">
-    left edges
-    <input type="checkbox" name="c1" onclick="showMe('center_points')" checked="">
-    point at the center of each note
+        left edges
+    <input type="checkbox" name="c1" onclick="showMe('note_center_points')" 
+        checked=""> 
+        point at the center of each note
+    <input type="checkbox" name="c1" onclick="showMe('left_edge_center_points')" 
+        checked=""> 
+        point at the center of each left edge
     <input type="checkbox" name="c1" onclick="showMe('cursor_layer')" checked="">
-    cursor layer
+        cursor layer
 </form>
 <div>
     Templates: 
@@ -38,7 +42,8 @@
     <canvas id="img_gray"></canvas>
     <canvas id="notes"></canvas>
     <canvas id="left_edges"></canvas>
-    <canvas id="center_points"></canvas>
+    <canvas id="note_center_points"></canvas>
+    <canvas id="left_edge_center_points"></canvas>
     <canvas id="cursor_layer"></canvas>
 </div>
 <script>
@@ -115,35 +120,43 @@
             // Find the contours of the notes.
             // Use this to count the number of notes.
 
-            let src = notes;
-            let dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC4);
-            let dst_centroids = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC4);
-            cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
-            
-            cv.threshold(src, src, 1, 255, cv.THRESH_BINARY);
-            let contours = new cv.MatVector();
-            let hierarchy = new cv.Mat();
-            cv.findContours(src, contours, hierarchy, cv.RETR_CCOMP,
-                cv.CHAIN_APPROX_SIMPLE);
+            // Also find the countours of left_edges.
+            // Use this to count the number of left_edges.
 
-            console.log(contours);
-            console.log(contours.size());
+            function process_contours(src, output_canvas) {
+                let dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC4);
+                let dst_centroids = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC4);
+                cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
+                
+                cv.threshold(src, src, 1, 255, cv.THRESH_BINARY);
+                let contours = new cv.MatVector();
+                let hierarchy = new cv.Mat();
+                cv.findContours(src, contours, hierarchy, cv.RETR_CCOMP,
+                    cv.CHAIN_APPROX_SIMPLE);
 
-            // draw contours
-            const color = new cv.Scalar(0, 0, 255, 255);
-            const centroids = [];
-            for (let i = 0; i < contours.size(); ++i) {
-                const contour = contours.get(i);
-                const rect = cv.boundingRect(contour);
-                const cx = Math.round(rect.x + rect.width / 2);
-                const cy = Math.round(rect.y + rect.height / 2);
-                centroids.unshift([cx, cy]);
-                dst_centroids.ucharPtr(cy,cx)[0] = 255;
-                dst_centroids.ucharPtr(cy,cx)[3] = 255;
+                console.log(contours);
+                console.log(contours.size());
+
+                // draw contours
+                const color = new cv.Scalar(0, 0, 255, 255);
+                const centroids = [];
+                for (let i = 0; i < contours.size(); ++i) {
+                    const contour = contours.get(i);
+                    const rect = cv.boundingRect(contour);
+                    const cx = Math.round(rect.x + rect.width / 2);
+                    const cy = Math.round(rect.y + rect.height / 2);
+                    centroids.unshift([cx, cy]);
+                    dst_centroids.ucharPtr(cy,cx)[0] = 255;
+                    dst_centroids.ucharPtr(cy,cx)[3] = 255;
+                }
+                cv.imshow(output_canvas, dst_centroids);
+
+                src.delete(); dst.delete(); contours.delete(); hierarchy.delete();
             }
-            cv.imshow('center_points', dst_centroids);
 
-            src.delete(); dst.delete(); contours.delete(); hierarchy.delete();
+            process_contours(notes, 'note_center_points');
+            process_contours(clefs, 'left_edge_center_points');
+
 
             // find clefs
 
