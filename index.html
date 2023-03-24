@@ -177,6 +177,15 @@
                 notes_by_stave[index_of_minimum].push(note);
             }
 
+            // loop through notes_by_stave
+            // sort each stave by x-position
+            for (let i=0; i < stave_count; i++) {
+                const stave = notes_by_stave[i];
+                stave.sort((a,b) => {return (a[0] - b[0]);});
+            }
+
+            console.log(notes_by_stave);
+
             // cursor
             function createCursor() {
                 const canvas = document.getElementById('cursor_layer');
