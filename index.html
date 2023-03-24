@@ -152,10 +152,13 @@
                 cv.imshow(output_canvas, dst_centroids);
 
                 src.delete(); dst.delete(); contours.delete(); hierarchy.delete();
+
+                return centroids;
             }
 
-            process_contours(notes, 'note_center_points');
-            process_contours(clefs, 'left_edge_center_points');
+            const centroids = process_contours(notes, 'note_center_points');
+            const stave_centroids = process_contours(clefs, 
+                'left_edge_center_points');
 
 
             // find clefs
