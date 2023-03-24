@@ -160,8 +160,22 @@
             const stave_centroids = process_contours(clefs, 
                 'left_edge_center_points');
 
+            const stave_count = stave_centroids.length;
+            const notes_by_stave = [...Array(stave_count)].map(e => []);
 
-            // find clefs
+            for (const note of centroids) {
+                const note_y_coord = note[1];
+
+                const distances = Array(stave_count);
+                for (let i=0; i < stave_count; i++) {
+                    const stave_y_coord = stave_centroids[i][1];
+                    distances[i] = Math.abs(note_y_coord - stave_y_coord);
+                }
+                const minimum_distance = Math.min(...distances);
+                const index_of_minimum = distances.indexOf(minimum_distance);
+
+                notes_by_stave[index_of_minimum].push(note);
+            }
 
             // cursor
             function createCursor() {
