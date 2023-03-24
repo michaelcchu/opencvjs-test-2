@@ -156,7 +156,7 @@
                 return centroids;
             }
 
-            const centroids = process_contours(notes, 'note_center_points');
+            let centroids = process_contours(notes, 'note_center_points');
             const stave_centroids = process_contours(clefs, 
                 'left_edge_center_points');
 
@@ -184,7 +184,10 @@
                 stave.sort((a,b) => {return (a[0] - b[0]);});
             }
 
+            centroids = notes_by_stave.flat();
+
             console.log(notes_by_stave);
+            console.log(centroids);
 
             // cursor
             function createCursor() {
